@@ -56,7 +56,7 @@ A successful implementation means:
 1. Uploaded datasets are structured CSV files with headers.
 2. Users upload one dataset at a time.
 3. Datasets fit within local machine memory constraints.
-4. Internet connectivity is available for Gemini API calls.
+4. Internet connectivity is available for Groq API calls.
 5. Users operate the application locally during grading.
 6. The application is not intended for production deployment.
 
@@ -67,8 +67,8 @@ A successful implementation means:
 | Component | Technology |
 |---|---|
 | Frontend Framework | React + Vite |
-| Styling | Tailwind CSS |
-| UI Components | Shadcn UI |
+| Styling | Custom CSS |
+| UI Components | React Components |
 | Chart Library | Recharts |
 | Backend Framework | FastAPI |
 | Data Validation | Pydantic |
@@ -77,8 +77,8 @@ A successful implementation means:
 | Database | SQLite |
 | ORM | SQLAlchemy |
 | Data Processing | Pandas |
-| LLM Provider | Google Gemini |
-| LLM Integration | Tool Calling / Function Calling |
+| LLM Provider | Groq |
+| LLM Integration | AI Powered Dataset Analytics |
 | Backend Testing | pytest |
 | Frontend Testing | Vitest |
 | Coding Agent | Antigravity |
@@ -88,25 +88,58 @@ A successful implementation means:
 
 # 3. Commands
 
+## Backend Setup
+
 ```bash
-Setup Backend:
-uv sync
+cd backend
+pip install -r requirements.txt
+```
 
-Run Backend:
-uv run uvicorn backend.app.main:app --reload --port 8000
+---
 
-Setup Frontend:
+## Run Backend
+
+```bash
+uvicorn app.main:app --reload
+```
+
+---
+
+## Frontend Setup
+
+```bash
 cd frontend
 npm install
+```
 
-Run Frontend:
+---
+
+## Run Frontend
+
+```bash
 npm run dev
+```
 
-Run Backend Tests:
-uv run pytest
+---
 
-Run Frontend Tests:
-npm run test
+## Run Backend Tests
 
-Build Frontend:
+```bash
+python -m pytest
+```
+
+---
+
+## Run Frontend Tests
+
+```bash
+npm test
+```
+
+---
+
+## Build Frontend
+
+```bash
 npm run build
+```
