@@ -1,3 +1,21 @@
+# pyrefly: ignore [missing-import]
+from groq import Groq
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GROQ_MODEL = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
+
+groq_client = Groq(api_key=GROQ_API_KEY) if GROQ_API_KEY else None
+
+
+
+
+
+
+
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
@@ -1034,100 +1052,122 @@ def generic_executive_summary(dataset_id: int):
 
 
 @app.post("/datasets/{dataset_id}/chat")
-async def generic_dataset_chat(dataset_id: int, payload: dict):
-    original_question = payload.get("question", "")
-    question = normalize_question(original_question)
+def ask_dataset_question(dataset_id: int, payload: dict):
+
+    question = payload.get("question", "")
 
     df = get_dataset_dataframe(dataset_id)
     profile = profile_dataframe(df)
-    dashboard = auto_dashboard(dataset_id)
 
     rows = int(df.shape[0])
     columns = int(df.shape[1])
 
-    numeric_columns = [
-        col for col in profile["column_profiles"]
-        if col.get("type") == "numeric"
-    ]
+    numeric_columns = []
+    categorical_columns = []
+    missing_summary = []
 
-    categorical_columns = [
-        col for col in profile["column_profiles"]
-        if col.get("type") == "categorical"
-    ]
+    for col_profile in profile["column_profiles"]:
 
-    missing_columns = [
-        col for col in profile["column_profiles"]
-        if col["missing_count"] > 0
-    ]
+        if col_profile.get("type") == "numeric":
+            numeric_columns.append(col_profile["name"])
 
-    if contains_any(question, ["rows", "records", "size", "how many rows"]):
-        answer = f"The dataset contains {rows} rows and {columns} columns."
+        if col_profile.get("type") == "categorical":
+            categorical_columns.append(col_profile["name"])
 
-    elif contains_any(question, ["columns", "fields", "features"]):
-        column_names = [col["name"] for col in profile["column_profiles"]]
-        answer = f"The dataset has these columns: {', '.join(column_names)}."
+        missing_count = col_profile.get("missing_count", 0)
 
-    elif contains_any(question, ["missing", "null", "empty", "data quality"]):
-        if missing_columns:
-            missing_text = [
-                f"{col['name']} has {col['missing_count']} missing values"
-                for col in missing_columns
-            ]
-            answer = "The main missing-value issues are: " + "; ".join(missing_text) + "."
-        else:
-            answer = "No major missing-value issue was detected in this dataset."
+        if missing_count > 0:
+            missing_percent = round((missing_count / rows) * 100, 2)
+            missing_summary.append(
+                {
+                    "column": col_profile["name"],
+                    "missing_count": missing_count,
+                    "missing_percent": missing_percent
+                }
+            )
 
-    elif contains_any(question, ["numeric", "kpi", "average", "mean", "maximum", "minimum"]):
-        if numeric_columns:
-            parts = []
-            for col in numeric_columns[:4]:
-                stats = col.get("stats", {})
-                if stats.get("mean") is not None:
-                    parts.append(
-                        f"{col['name']} has mean {round(float(stats['mean']), 2)}, min {round(float(stats['min']), 2)}, and max {round(float(stats['max']), 2)}"
-                    )
-            answer = "Numeric KPI summary: " + "; ".join(parts) + "."
-        else:
-            answer = "This dataset does not contain strong numeric KPI columns after profiling."
+    dataset_context = {
+        "rows": rows,
+        "columns": columns,
+        "numeric_columns": numeric_columns,
+        "categorical_columns": categorical_columns,
+        "missing_summary": missing_summary,
+        "sample_rows": df.head(5).to_dict(orient="records")
+    }
 
-    elif contains_any(question, ["category", "categorical", "segment", "filter", "group"]):
-        if categorical_columns:
-            parts = []
-            for col in categorical_columns[:4]:
-                top_values = col.get("top_values", {})
-                if top_values:
-                    first_key = list(top_values.keys())[0]
-                    first_value = top_values[first_key]
-                    parts.append(
-                        f"{col['name']} is useful for segmentation; its top value is '{first_key}' with {first_value} records"
-                    )
-            answer = "Categorical insight: " + "; ".join(parts) + "."
-        else:
-            answer = "No low-cardinality categorical columns were detected for segmentation."
+    prompt = f"""
+You are an AI data analyst for a Business Intelligence dashboard.
 
-    elif contains_any(question, ["summary", "summarize", "overview", "executive"]):
-        summary = generic_executive_summary(dataset_id)
-        answer = summary["executive_summary"]
+Use only the dataset context below. Do not invent facts.
 
-    elif contains_any(question, ["recommend", "recommendation", "what should", "action"]):
-        summary = generic_executive_summary(dataset_id)
-        answer = " ".join(summary["recommendations"])
+Dataset context:
+{json.dumps(dataset_context, indent=2)}
 
-    elif contains_any(question, ["filter", "slicer", "dashboard filter"]):
-        filter_options = dashboard.get("filter_options", {})
-        if filter_options:
-            answer = "Available filter columns are: " + ", ".join(filter_options.keys()) + "."
-        else:
-            answer = "No suitable low-cardinality filter columns were detected for this dataset."
+User question:
+{question}
 
-    else:
-        answer = (
-            f"This dataset contains {rows} rows and {columns} columns. "
-            f"The dashboard can profile columns, detect missing values, identify categorical segments, generate KPIs, and create interactive charts."
+Answer clearly in business language. Include numbers from the context where relevant.
+"""
+
+    try:
+        if groq_client is None:
+            raise Exception("GROQ_API_KEY not configured")
+
+        completion = groq_client.chat.completions.create(
+            model=GROQ_MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": "You are a careful data analyst. Use only provided dataset context."
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ],
+            temperature=0.2
         )
+
+        answer = completion.choices[0].message.content
+        provider = "groq"
+
+    except Exception as e:
+
+        print("Groq API Error:", str(e))
+
+        question_lower = question.lower()
+
+        if "missing" in question_lower or "null" in question_lower or "empty" in question_lower:
+            if missing_summary:
+                missing_text = [
+                    f"{item['column']} has {item['missing_count']} missing values ({item['missing_percent']}%)"
+                    for item in missing_summary
+                ]
+
+                answer = (
+                    "The AI assistant used the dataset analysis tools to answer this question. "
+                    "Missing value analysis: "
+                    + "; ".join(missing_text)
+                    + ". Management should clean or impute these fields before using the dataset for final decision-making."
+                )
+            else:
+                answer = (
+                    "The AI assistant used the dataset analysis tools to answer this question. "
+                    "No missing values were detected in the dataset."
+                )
+        else:
+            answer = (
+                "The AI assistant used the dataset analysis tools to answer this question. "
+                f"The dataset contains {rows} rows and {columns} columns. "
+                f"Numeric columns detected: {numeric_columns}. "
+                f"Categorical columns detected: {categorical_columns}."
+            )
+
+        provider = "local_dataset_tools_fallback"
 
     return {
         "dataset_id": dataset_id,
-        "question": original_question,
-        "answer": answer
+        "question": question,
+        "answer": answer,
+        "llm_provider": provider
     }
