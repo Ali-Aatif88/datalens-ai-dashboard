@@ -1,157 +1,132 @@
-# DataLens — [Your Team Name]
-
-> **Starter template:** This README is a template. Replace every section marked `[TODO]` with your actual content as you build. The quality of this README is part of your grade — see the grading rubric in the Final Project Specification.
+# DataLens – AI Powered Generic CSV Analytics Dashboard
 
 ## Team
 
-- **Member 1:** [Name]
-- **Member 2:** [Name]
-- **Member 3 (if applicable):** [Name]
-- **Assigned Dataset:** [Dataset name and number, e.g., "Dataset 10 — Hotel Booking Demand"]
+- **Member 1:** Muhammad Ali Aatif (23I-4552)
+  - Frontend Development
+  - Dashboard UI/UX
+  - Chart Integration
+  - AI Assistant Interface
 
-## Project Purpose
+- **Member 2:** Shamoon Jan Aurakzai (22I-0724)
+  - Backend Development
+  - FastAPI APIs
+  - Data Profiling Logic
+  - Dashboard Generation
 
-[TODO — 2-3 sentences describing what DataLens does and who it serves. This should be accessible to someone who has not read the Final Project Specification.]
+- **Member 3:** Minhaaj Saqib (22I-5006)
+  - Dataset Engineering
+  - Testing
+  - Analytics Validation
+  - Documentation Support
 
-## Prerequisites
+### Assigned Dataset
+E-commerce | Brazilian E-commerce (Olist) | ~100K Orders
 
-Before running this project, you need the following installed on your machine:
+---
 
-- **Python 3.11 or higher** — [https://www.python.org/downloads/](https://www.python.org/downloads/)
-- **Node.js 18 or higher** — [https://nodejs.org/](https://nodejs.org/)
-- **uv** (Python package manager) — install with:
-  ```bash
-  curl -LsSf https://astral.sh/uv/install.sh | sh
-  ```
-  On Windows: `powershell -c "irm https://astral.sh/uv/install.ps1 | iex"`
-- **Git** — [https://git-scm.com/](https://git-scm.com/)
+# Project Purpose
 
-## LLM API Key Setup
+DataLens is an AI powered generic CSV analytics platform that automatically analyzes uploaded datasets and generates interactive dashboards, charts, KPI insights, executive summaries, and AI assisted dataset explanations.
 
-This application uses an LLM for the chat interface and executive summary features. You need an API key from at least one of the following providers:
+The system is designed to work on generic CSV datasets rather than only one fixed dataset. Users can upload datasets and instantly receive automated insights, filtering capabilities, visual analytics, and AI generated summaries without manually creating dashboards.
 
-- **Google Gemini (recommended — has a free tier):** Get a key at [https://aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-- **Anthropic Claude:** Get a key at [https://console.anthropic.com/](https://console.anthropic.com/)
-- **OpenAI:** Get a key at [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys)
-- **Groq (has a free tier):** Get a key at [https://console.groq.com/keys](https://console.groq.com/keys)
+The project combines:
+- FastAPI backend services
+- React frontend dashboard
+- Dynamic chart rendering
+- AI style dataset summarization
+- Interactive filtering and analytics
 
-## Setup Instructions
+---
 
-### 1. Clone the repository
+# Core Features
 
-```bash
-git clone [your-repo-url]
-cd [repo-name]
-```
+## Generic CSV Dataset Support
+- Works with uploaded CSV datasets dynamically
+- Automatically detects:
+  - Numeric columns
+  - Categorical columns
+  - Missing values
+  - KPIs
+  - Distributions
 
-### 2. Configure environment variables
+## AI Executive Summary
+- Generates automatic dataset level summaries
+- Identifies:
+  - Dataset dimensions
+  - Data quality issues
+  - KPI candidates
+  - Segmentation opportunities
 
-```bash
-cp .env.example .env
-```
+## AI Chat Assistant
+Users can ask questions such as:
+- How many rows exist?
+- Which columns contain missing values?
+- What are the KPIs?
+- Which columns are categorical?
+- Dataset summary requests
 
-Open `.env` in a text editor and fill in:
-- `LLM_PROVIDER` — set to one of: `gemini`, `anthropic`, `openai`, `groq`
-- The corresponding API key variable for your chosen provider
+## Interactive Dashboard
+Automatically generates:
+- KPI Cards
+- Missing value charts
+- Distribution charts
+- Categorical analysis
+- Dataset insights
 
-### 3. Install dependencies and start the application
+## Global Filters
+- Dynamic filter column selector
+- Dynamic filter value selector
+- Dashboard wide filtering
+- Real time chart updates
 
-[TODO — Document the single command that starts both the backend and frontend. Example:
+## Dynamic Visualization
+Supports:
+- Bar charts
+- Line charts
+- KPI metrics
+- Distribution analysis
 
-```bash
-./start.sh
-```
+---
 
-or
+# Technology Stack
 
-```bash
-npm run dev
-```
+## Backend
+- Python
+- FastAPI
+- Pandas
+- SQLite
 
-The command must install all dependencies (Python via uv, Node via npm) and start both the backend (port 8000) and frontend (port 5173). Document the command here, and include the actual script or configuration in your repo.]
+## Frontend
+- React
+- Vite
+- Recharts
+- Axios
 
-### 4. Open the application
+---
 
-Once started, visit [http://localhost:5173](http://localhost:5173) in your browser.
+# System Architecture
 
-## Usage
+## Backend Responsibilities
+- Dataset ingestion
+- Data profiling
+- KPI generation
+- AI summary generation
+- Dynamic dashboard APIs
+- Dataset filtering
 
-[TODO — Brief usage walkthrough:
-1. Click "Upload" and select a CSV file
-2. Wait for data profiling to complete
-3. Explore the auto-generated dashboard
-4. Use the filters to narrow the view
-5. Ask questions in the chat panel
-6. Read the generated executive summary
-]
+## Frontend Responsibilities
+- Dashboard rendering
+- Interactive filters
+- Chart visualization
+- AI assistant UI
+- Executive summary display
 
-## Running Tests
+---
 
-### Backend tests
+# API Endpoints
 
-```bash
-cd backend
-uv run pytest
-```
-
-### Frontend tests
-
-```bash
-cd frontend
-npm test
-```
-
-## Troubleshooting
-
-[TODO — Document common issues and their fixes. Add to this section as you encounter problems during development. At minimum, address:
-
-- Port already in use (8000 or 5173)
-- Python version mismatch
-- Node version mismatch
-- LLM API key issues or rate limits
-- CSV upload failures
-- Missing dependencies
-
-Example format:
-
-**Problem:** `Port 8000 already in use`
-**Fix:** Find and stop the conflicting process: `lsof -i :8000` (macOS/Linux) or `netstat -ano | findstr :8000` (Windows)
-]
-
-## Project Structure
-
-```
-.
-├── .agent/skills/          # Agent Skills (6 mandatory skills, auto-loaded by coding agent)
-├── docs/
-│   ├── adrs/              # Architecture Decision Records
-│   └── report.md          # Final project reflection
-├── tasks/
-│   ├── plan.md            # Implementation plan
-│   └── todo.md            # Task breakdown
-├── backend/
-│   ├── app/               # FastAPI application code
-│   └── tests/             # pytest tests
-├── frontend/
-│   ├── src/               # React application code
-│   └── tests/             # Vitest tests
-├── SPEC.md                 # Project specification
-├── README.md               # This file
-├── .env.example           # Environment variable template
-└── pyproject.toml         # Python dependencies
-```
-
-## Contribution Summary
-
-[TODO — Brief summary of who did what. This is used for grading team member contribution fairness.]
-
-- **[Member 1 Name]:** [Primary responsibilities]
-- **[Member 2 Name]:** [Primary responsibilities]
-
-## Acknowledgments
-
-This project was developed as part of the Spring 2026 Strategic Generative AI for Business course. We used [Antigravity / Claude Code / Codex / Cursor] as our coding agent, guided by the Agent Skills framework authored by Addy Osmani (MIT licensed, available at [https://github.com/addyosmani/agent-skills](https://github.com/addyosmani/agent-skills)).
-
-## License
-
-[TODO — Choose a license or remove this section.]
+## Dataset Upload
+```http
+POST /datasets/upload
